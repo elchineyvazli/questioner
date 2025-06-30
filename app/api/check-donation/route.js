@@ -14,7 +14,7 @@ const r2 = new S3Client({
 
 const BUCKET = process.env.R2_META_BUCKET;
 const TRONGRID_API = 'https://api.trongrid.io/v1/accounts';
-const API_KEY = process.env.TRONAPIKEY;
+const API_KEY = process.env.TRONGRID_API_KEY;
 const DONATION_ADDRESS = process.env.DONATION_WALLET_ADDRESS;
 
 async function getTransactions() {

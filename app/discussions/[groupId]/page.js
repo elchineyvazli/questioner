@@ -20,27 +20,27 @@ export default function GroupPage() {
     const [settingsOpen, setSettingsOpen] = useState(false);
     const [selectedChannel, setSelectedChannel] = useState(null);
 
-    const fetchGroup = async () => {
-        setLoading(true);
-        try {
-            const res = await fetch(`/api/get-groups?id=${groupId}`);
-            const data = await res.json();
-            const groupObj = data.groups?.[0] || null;
-            setGroup(groupObj);
-            setActiveChannel(null);
-            if (groupObj?.channels?.length) {
-                setActiveChannel(groupObj.channels[0].id);
-            }
-        } catch (err) {
-            console.error("fetchGroup error:", err);
-            setGroup(null);
-            setError("Grup verileri alınamadı.");
-        } finally {
-            setLoading(false);
-        }
-    };
-
     useEffect(() => {
+        const fetchGroup = async () => {
+            setLoading(true);
+            try {
+                const res = await fetch(`/api/get-groups?id=${groupId}`);
+                const data = await res.json();
+                const groupObj = data.groups?.[0] || null;
+                setGroup(groupObj);
+                setActiveChannel(null);
+                if (groupObj?.channels?.length) {
+                    setActiveChannel(groupObj.channels[0].id);
+                }
+            } catch (err) {
+                console.error("fetchGroup error:", err);
+                setGroup(null);
+                setError("Grup verileri alınamadı.");
+            } finally {
+                setLoading(false);
+            }
+        };
+
         setNickname(localStorage.getItem('nickname') || '');
         fetchGroup();
     }, [groupId]);

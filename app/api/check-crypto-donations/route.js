@@ -1,7 +1,6 @@
-// app/api/check-crypto-donations/route.js
 import { NextResponse } from "next/server";
 import { S3Client, ListObjectsV2Command, GetObjectCommand, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
-import tron from "../../lib/cryptoWallet";
+import { getRecentTransfers } from "@/app/lib/cryptoWallet";
 
 const r2 = new S3Client({
     region: "auto",
@@ -16,84 +15,98 @@ const BUCKET = process.env.R2_META_BUCKET;
 const PENDING_PREFIX = "crypto-pending/";
 const SUCCESS_PREFIX = "crypto-success/";
 const SUPPORTERS_KEY = "supporters.json";
-const USDT_CONTRACT = "TXLAQ63Xg1NAzckPwKHvzw7CSEmLMEqcdj"; // Official USDT TRC20
+const USDT_CONTRACT = "TXLAQ63Xg1NAzckPwKHvzw7CSEmLMEqcdj";
 
 export async function GET() {
     try {
-        const listRes = await r2.send(
-            new ListObjectsV2Command({ Bucket: BUCKET, Prefix: PENDING_PREFIX })
-        );
+        const [listRes, supporters] = await Promise.all([
+            r2.send(new ListObjectsV2Command({ Bucket: BUCKET, Prefix: PENDING_PREFIX })),
+            loadSupporters()
+        ]);
 
         const pendingFiles = listRes.Contents || [];
-        const supporters = await loadSupporters();
         const wallet = process.env.DONATION_WALLET_ADDRESS;
+        const transfers = await getRecentTransfers(USDT_CONTRACT, {
+            min_block_timestamp: Date.now() - 86400000
+        });
 
-        const confirmed = [];
+        const processingResults = await Promise.allSettled(
+            pendingFiles.map(async (file) => {
+                const id = file.Key.split("/")[1];
+                const obj = await r2.send(new GetObjectCommand({
+                    Bucket: BUCKET,
+                    Key: file.Key
+                }));
+                const donation = JSON.parse(await streamToString(obj.Body));
 
-        for (const file of pendingFiles) {
-            const id = file.Key.split("/")[1];
-            const obj = await r2.send(
-                new GetObjectCommand({ Bucket: BUCKET, Key: file.Key })
-            );
-            const donationStr = await streamToString(obj.Body);
-            const donation = JSON.parse(donationStr);
+                const found = transfers.find(ev => {
+                    const { to, value, block_timestamp } = ev.result;
+                    return (
+                        to === wallet &&
+                        parseFloat(value) / 1e6 >= donation.amount
+                    );
+                });
 
-            // İşlem kontrolü (basit eşleştirme - production için daha gelişmiş yapılmalı)
-            const txList = await tron.trx.getContractEvents(USDT_CONTRACT, {
-                eventName: "Transfer",
-                size: 50
-            });
+                if (!found) return null;
 
-            const found = txList.find(ev => {
-                const { to, value } = ev.result;
-                return (
-                    to === wallet &&
-                    parseFloat(value) / 1e6 >= donation.amount
-                );
-            });
-
-            if (found) {
-                confirmed.push(donation);
-
-                // 1. Başarılı klasöre taşı
-                await r2.send(
-                    new PutObjectCommand({
+                await Promise.all([
+                    r2.send(new PutObjectCommand({
                         Bucket: BUCKET,
                         Key: `${SUCCESS_PREFIX}${id}.json`,
-                        Body: JSON.stringify({ ...donation, txid: found.transaction_id }, null, 2),
+                        Body: JSON.stringify({
+                            ...donation,
+                            txid: found.transaction_id
+                        }, null, 2),
                         ContentType: "application/json"
-                    })
-                );
+                    })),
+                    r2.send(new DeleteObjectCommand({
+                        Bucket: BUCKET,
+                        Key: file.Key
+                    }))
+                ]);
 
-                // 2. Pending dosyasını sil
-                await r2.send(
-                    new DeleteObjectCommand({ Bucket: BUCKET, Key: file.Key })
-                );
-
-                // 3. Supporters.json'a ekle
-                supporters.push({
-                    nickname: donation.nickname,
-                    message: donation.message,
-                    amount: donation.amount,
-                    createdAt: donation.createdAt,
-                });
-            }
-        }
-
-        // Güncellenmiş destekçi listesi kaydet
-        await r2.send(
-            new PutObjectCommand({
-                Bucket: BUCKET,
-                Key: SUPPORTERS_KEY,
-                Body: JSON.stringify(supporters, null, 2),
-                ContentType: "application/json"
+                return donation;
             })
         );
 
-        return NextResponse.json({ status: "ok", confirmed: confirmed.length });
+        const confirmedDonations = processingResults
+            .filter(r => r.status === 'fulfilled' && r.value)
+            .map(r => r.value);
+
+        if (confirmedDonations.length > 0) {
+            const updatedSupporters = [
+                ...supporters,
+                ...confirmedDonations.map(d => ({
+                    nickname: d.nickname,
+                    message: d.message,
+                    amount: d.amount,
+                    createdAt: d.createdAt,
+                }))
+            ];
+
+            await r2.send(new PutObjectCommand({
+                Bucket: BUCKET,
+                Key: SUPPORTERS_KEY,
+                Body: JSON.stringify(updatedSupporters, null, 2),
+                ContentType: "application/json"
+            }));
+        }
+
+        return NextResponse.json({
+            status: "ok",
+            confirmed: confirmedDonations.length
+        });
+
     } catch (err) {
-        console.error("Check crypto donations error:", err);
-        return NextResponse.json({ error: "Sunucu hatası" }, { status: 500 });
+        console.error("Check crypto donations error:", {
+            message: err.message,
+            stack: err.stack,
+            timestamp: new Date().toISOString()
+        });
+        return NextResponse.json({
+            error: "Sunucu hatası",
+            details: process.env.NODE_ENV === 'development' ? err.message : undefined
+        }, { status: 500 });
     }
 }
 

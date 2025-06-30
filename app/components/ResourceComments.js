@@ -14,18 +14,24 @@ export default function ResourceComments({ resourceId }) {
 
     const formRef = useRef();
 
-    const fetchComments = useCallback(() => {
-        setLoading(true);
-        fetch(`/api/get-resource-comments?resourceId=${resourceId}`)
-            .then(res => res.json())
-            .then(data => setComments(data.comments || []))
-            .finally(() => setLoading(false));
-    }, [resourceId]);
-
     useEffect(() => {
         if (!resourceId) return;
+
+        const fetchComments = async () => {
+            setLoading(true);
+            try {
+                const res = await fetch(`/api/get-resource-comments?resourceId=${resourceId}`);
+                const data = await res.json();
+                setComments(data.comments || []);
+            } catch (error) {
+                console.error("Yorumlar yüklenirken hata:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
         fetchComments();
-    }, [fetchComments, ok]);
+    }, [resourceId, ok]);
 
     async function handleSubmit(e) {
         e.preventDefault();

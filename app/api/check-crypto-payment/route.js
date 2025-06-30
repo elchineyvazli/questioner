@@ -12,7 +12,7 @@ const r2 = new S3Client({
 });
 
 const BUCKET = process.env.R2_META_BUCKET;
-const tronApiKey = process.env.TRONAPIKEY;
+const tronApiKey = process.env.TRONGRID_API_KEY;
 const wallet = process.env.DONATION_WALLET_ADDRESS;
 
 async function streamToString(stream) {

@@ -17,7 +17,7 @@ const USDT_CONTRACT = 'TXLAQ63Xg1NAzckPwKHvzw7CSEmLMEqcdj';
 
 const tronWeb = new TronWeb({
   fullHost: 'https://api.trongrid.io',
-  headers: { 'TRON-PRO-API-KEY': process.env.TRONAPIKEY },
+  headers: { 'TRON-PRO-API-KEY': process.env.TRONGRID_API_KEY },
 });
 
 export async function POST(req) {
