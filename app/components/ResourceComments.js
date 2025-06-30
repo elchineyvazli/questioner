@@ -1,6 +1,6 @@
 // app/components/ResourceComments.js
 'use client';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
 export default function ResourceComments({ resourceId }) {
     const [comments, setComments] = useState([]);
@@ -14,18 +14,18 @@ export default function ResourceComments({ resourceId }) {
 
     const formRef = useRef();
 
-    function fetchComments() {
+    const fetchComments = useCallback(() => {
         setLoading(true);
         fetch(`/api/get-resource-comments?resourceId=${resourceId}`)
             .then(res => res.json())
             .then(data => setComments(data.comments || []))
             .finally(() => setLoading(false));
-    }
+    }, [resourceId]);
 
     useEffect(() => {
         if (!resourceId) return;
         fetchComments();
-    }, [resourceId, ok]);
+    }, [fetchComments, ok]);
 
     async function handleSubmit(e) {
         e.preventDefault();

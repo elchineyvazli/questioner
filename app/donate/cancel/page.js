@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 // app/donate/cancel/page.js
 export default function DonateCancel() {
     return (

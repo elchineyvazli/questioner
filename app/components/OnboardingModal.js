@@ -37,7 +37,7 @@ const STEPS = [
         icon: <FiUsers className="text-4xl text-green-500 mb-2" />,
         desc: (
             <span className="text-base text-slate-700 dark:text-slate-200 font-medium">
-                Sorgulayanlar Kulübü'ne katıldığın için teşekkürler! Hadi, ilk sorunla tartışmaya başla! 👏
+                Sorgulayanlar Kulübü&apos;ne katıldığın için teşekkürler! Hadi, ilk sorunla tartışmaya başla! 👏
             </span>
         )
     }

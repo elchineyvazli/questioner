@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { FiArrowRight, FiShare2, FiMessageCircle } from 'react-icons/fi';
 import { motion } from 'framer-motion';
+import Link from 'next/link';
 
 export default function TodayQuestion() {
     const [question, setQuestion] = useState(null);

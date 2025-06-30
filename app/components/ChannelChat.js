@@ -13,7 +13,7 @@ export default function ChannelChat({ groupId, channelId }) {
     const nickname = typeof window !== "undefined" ? (localStorage.getItem("nickname") || "Anonim") : "Anonim";
 
     // Mesajları çek
-    const fetchMessages = async (showLoading) => {
+    const fetchMessages = useCallback(async (showLoading) => {
         if (showLoading) setLoading(true);
         try {
             const res = await fetch(`/api/get-messages?groupId=${groupId}&channelId=${channelId}`);
@@ -24,15 +24,15 @@ export default function ChannelChat({ groupId, channelId }) {
         } finally {
             if (showLoading) setLoading(false);
         }
-    };
+    }, [groupId, channelId]);
 
     useEffect(() => {
-        fetchMessages(true); // ilk açılışta loading göstermek için true
+        fetchMessages(true);
         const timer = setInterval(() => {
-            fetchMessages(false); // döngüde loading=false
+            fetchMessages(false);
         }, 3500);
         return () => clearInterval(timer);
-    }, [groupId, channelId]);
+    }, [fetchMessages]);
 
 
     useEffect(() => {
