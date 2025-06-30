@@ -1,132 +1,135 @@
+// app/api/check-crypto-donations/route.js
 import { NextResponse } from "next/server";
-import { S3Client, ListObjectsV2Command, GetObjectCommand, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client } from "@aws-sdk/client-s3";
 import { getRecentTransfers } from "@/app/lib/cryptoWallet";
 
-const r2 = new S3Client({
-    region: "auto",
-    endpoint: process.env.R2_META_ENDPOINT,
-    credentials: {
-        accessKeyId: process.env.R2_META_ACCESS_KEY_ID,
-        secretAccessKey: process.env.R2_META_SECRET_ACCESS_KEY,
-    },
-});
+// AWS S3/R2 Client (singleton pattern)
+let s3Client = null;
 
-const BUCKET = process.env.R2_META_BUCKET;
-const PENDING_PREFIX = "crypto-pending/";
-const SUCCESS_PREFIX = "crypto-success/";
-const SUPPORTERS_KEY = "supporters.json";
-const USDT_CONTRACT = "TXLAQ63Xg1NAzckPwKHvzw7CSEmLMEqcdj";
+function getS3Client() {
+    if (!s3Client) {
+        s3Client = new S3Client({
+            region: "auto",
+            endpoint: process.env.R2_META_ENDPOINT,
+            credentials: {
+                accessKeyId: process.env.R2_META_ACCESS_KEY_ID,
+                secretAccessKey: process.env.R2_META_SECRET_ACCESS_KEY,
+            },
+        });
+    }
+    return s3Client;
+}
+
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
     try {
+        const r2 = getS3Client();
+        const BUCKET = process.env.R2_META_BUCKET;
+
         const [listRes, supporters] = await Promise.all([
-            r2.send(new ListObjectsV2Command({ Bucket: BUCKET, Prefix: PENDING_PREFIX })),
-            loadSupporters()
+            r2.send(new ListObjectsV2Command({
+                Bucket: BUCKET,
+                Prefix: "crypto-pending/"
+            })),
+            loadSupporters(r2, BUCKET)
         ]);
 
-        const pendingFiles = listRes.Contents || [];
-        const wallet = process.env.DONATION_WALLET_ADDRESS;
-        const transfers = await getRecentTransfers(USDT_CONTRACT, {
-            min_block_timestamp: Date.now() - 86400000
-        });
-
-        const processingResults = await Promise.allSettled(
-            pendingFiles.map(async (file) => {
-                const id = file.Key.split("/")[1];
-                const obj = await r2.send(new GetObjectCommand({
-                    Bucket: BUCKET,
-                    Key: file.Key
-                }));
-                const donation = JSON.parse(await streamToString(obj.Body));
-
-                const found = transfers.find(ev => {
-                    const { to, value, block_timestamp } = ev.result;
-                    return (
-                        to === wallet &&
-                        parseFloat(value) / 1e6 >= donation.amount
-                    );
-                });
-
-                if (!found) return null;
-
-                await Promise.all([
-                    r2.send(new PutObjectCommand({
-                        Bucket: BUCKET,
-                        Key: `${SUCCESS_PREFIX}${id}.json`,
-                        Body: JSON.stringify({
-                            ...donation,
-                            txid: found.transaction_id
-                        }, null, 2),
-                        ContentType: "application/json"
-                    })),
-                    r2.send(new DeleteObjectCommand({
-                        Bucket: BUCKET,
-                        Key: file.Key
-                    }))
-                ]);
-
-                return donation;
-            })
+        const processingResults = await processDonations(
+            r2,
+            listRes.Contents || [],
+            supporters,
+            BUCKET
         );
-
-        const confirmedDonations = processingResults
-            .filter(r => r.status === 'fulfilled' && r.value)
-            .map(r => r.value);
-
-        if (confirmedDonations.length > 0) {
-            const updatedSupporters = [
-                ...supporters,
-                ...confirmedDonations.map(d => ({
-                    nickname: d.nickname,
-                    message: d.message,
-                    amount: d.amount,
-                    createdAt: d.createdAt,
-                }))
-            ];
-
-            await r2.send(new PutObjectCommand({
-                Bucket: BUCKET,
-                Key: SUPPORTERS_KEY,
-                Body: JSON.stringify(updatedSupporters, null, 2),
-                ContentType: "application/json"
-            }));
-        }
 
         return NextResponse.json({
             status: "ok",
-            confirmed: confirmedDonations.length
+            confirmed: processingResults.filter(Boolean).length
         });
 
-    } catch (err) {
-        console.error("Check crypto donations error:", {
-            message: err.message,
-            stack: err.stack,
-            timestamp: new Date().toISOString()
-        });
-        return NextResponse.json({
-            error: "Sunucu hatası",
-            details: process.env.NODE_ENV === 'development' ? err.message : undefined
-        }, { status: 500 });
+    } catch (error) {
+        console.error("API Error:", error);
+        return NextResponse.json(
+            { error: "Internal Server Error" },
+            { status: 500 }
+        );
     }
 }
 
-function streamToString(stream) {
-    const chunks = [];
-    return new Promise((resolve, reject) => {
-        stream.on("data", chunk => chunks.push(chunk));
-        stream.on("error", reject);
-        stream.on("end", () => resolve(Buffer.concat(chunks).toString("utf-8")));
+// Yardımcı fonksiyonlar
+async function processDonations(r2, pendingFiles, supporters, bucket) {
+    const transfers = await getRecentTransfers("TXLAQ63Xg1NAzckPwKHvzw7CSEmLMEqcdj", {
+        min_block_timestamp: Date.now() - 86400000
     });
+
+    return Promise.allSettled(
+        pendingFiles.map(async (file) => {
+            try {
+                const obj = await r2.send(new GetObjectCommand({
+                    Bucket: bucket,
+                    Key: file.Key
+                }));
+
+                const donation = JSON.parse(await streamToBuffer(obj.Body));
+                const found = findMatchingTransfer(transfers, donation);
+
+                if (!found) return null;
+
+                await moveToSuccess(r2, bucket, file.Key, donation, found);
+                return donation;
+            } catch (error) {
+                console.error(`Processing error for ${file.Key}:`, error);
+                return null;
+            }
+        })
+    );
 }
 
-async function loadSupporters() {
+function findMatchingTransfer(transfers, donation) {
+    return transfers.find(ev => (
+        ev.result.to === process.env.DONATION_WALLET_ADDRESS &&
+        parseFloat(ev.result.value) / 1e6 >= donation.amount
+    ));
+}
+
+async function moveToSuccess(r2, bucket, fileKey, donation, transfer) {
+    const newKey = fileKey.replace("crypto-pending/", "crypto-success/");
+
+    await Promise.all([
+        r2.send(new PutObjectCommand({
+            Bucket: bucket,
+            Key: newKey,
+            Body: JSON.stringify({
+                ...donation,
+                txid: transfer.transaction_id
+            }, null, 2),
+            ContentType: "application/json"
+        })),
+        r2.send(new DeleteObjectCommand({
+            Bucket: bucket,
+            Key: fileKey
+        }))
+    ]);
+}
+
+async function streamToBuffer(stream) {
+    const chunks = [];
+    for await (const chunk of stream) {
+        chunks.push(chunk);
+    }
+    return Buffer.concat(chunks).toString('utf-8');
+}
+
+async function loadSupporters(r2, bucket) {
     try {
         const res = await r2.send(
-            new GetObjectCommand({ Bucket: BUCKET, Key: SUPPORTERS_KEY })
+            new GetObjectCommand({
+                Bucket: bucket,
+                Key: "supporters.json"
+            })
         );
-        const str = await streamToString(res.Body);
-        return JSON.parse(str);
-    } catch (err) {
+        return JSON.parse(await streamToBuffer(res.Body));
+    } catch (error) {
         return [];
     }
 }
