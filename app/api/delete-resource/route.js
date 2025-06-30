@@ -1,7 +1,7 @@
 // app/api/delete-resource/route.js
 
 import { NextResponse } from "next/server";
-import { pdfClient, pdfClient } from "@/app/lib/r2";
+import { pdfClient } from "@/app/lib/r2";
 import { GetObjectCommand, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 
 const R2_PDF_BUCKET = process.env.R2_PDF_BUCKET;
