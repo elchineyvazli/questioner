@@ -1,7 +1,7 @@
 // app/api/submit-resource/route.js
 
 import { NextResponse } from "next/server";
-import { uploadPDFToR2, r2Client } from "../../../app/lib/r2";
+import { uploadPDFToR2 } from "../../../app/lib/r2";
 import { hashIp } from "../../../app/lib/ipHash";
 import { GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 

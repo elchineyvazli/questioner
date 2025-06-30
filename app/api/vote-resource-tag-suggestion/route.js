@@ -1,7 +1,6 @@
 // api/vote-resource-tag-suggestion/route.js
 
 import { NextResponse } from "next/server";
-import { r2Client } from "../../../app/lib/r2";
 import { GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 
 const R2_BUCKET = process.env.R2_BUCKET;

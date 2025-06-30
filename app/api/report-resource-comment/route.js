@@ -1,7 +1,6 @@
 // app/api/report-resource-comment/route.js
 
 import { NextResponse } from "next/server";
-import { r2Client } from "../../../app/lib/r2";
 import { hashIp } from "../../../app/lib/ipHash";
 import { GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 
