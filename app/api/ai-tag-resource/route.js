@@ -3,6 +3,7 @@
 import { NextResponse } from "next/server";
 import { analyzeResourceWithAI } from "@/app/lib/aiUtils";
 import { getPdfFromR2, uploadPdfToR2 } from "@/app/lib/r2";
+import { PDFDocument } from "pdf-lib";
 
 const RESOURCES_JSON_KEY = "resources.json";
 
@@ -60,25 +61,23 @@ export async function POST(req) {
     }
 }
 
-// PDF'den metin çıkarma fonksiyonu (pdf-parse kullanmadan)
+// PDF'den metin çıkarma fonksiyonu (pdf-lib kullanarak)
 async function extractTextFromPDF(pdfUrl) {
     try {
-        // PDF.js kullanarak metin çıkarma
-        const { default: pdfjs } = await import('pdfjs-dist');
-        pdfjs.GlobalWorkerOptions.workerSrc = await import('pdfjs-dist/build/pdf.worker.min.js');
+        // PDF'i indir
+        const res = await fetch(pdfUrl);
+        if (!res.ok) return "";
+        const arrayBuffer = await res.arrayBuffer();
 
-        const loadingTask = pdfjs.getDocument(pdfUrl);
-        const pdf = await loadingTask.promise;
+        // PDF'i yükle
+        const pdfDoc = await PDFDocument.load(arrayBuffer);
+        let text = "";
 
-        let text = '';
-        for (let i = 1; i <= pdf.numPages; i++) {
-            const page = await pdf.getPage(i);
+        // Her sayfadaki metni çıkar
+        for (let i = 0; i < Math.min(pdfDoc.getPageCount(), 5); i++) {
+            const page = pdfDoc.getPage(i);
             const content = await page.getTextContent();
-            const strings = content.items.map(item => item.str);
-            text += strings.join(' ') + '\n';
-
-            // Performans için ilk birkaç sayfayla sınırla
-            if (i >= 5) break;
+            text += content.items.map(item => item.str).join(' ') + '\n';
         }
 
         return text.slice(0, 6000);
