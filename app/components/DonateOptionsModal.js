@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import CryptoDonateModal from './CryptoDonateModal';
+import Link from 'next/link';
 
 export default function DonateOptionsModal({ open, onClose }) {
   const [showCrypto, setShowCrypto] = useState(false);
@@ -19,14 +20,14 @@ export default function DonateOptionsModal({ open, onClose }) {
 
             <div className="flex flex-col gap-4">
               {/* PayPal */}
-              <a
+              <Link
                 href="https://www.paypal.com/donate/?hosted_button_id=X4R8E6BT6USGC"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full py-3 rounded-xl bg-blue-600 text-white font-bold text-center hover:bg-blue-700 transition"
               >
                 PayPal ile Destekle
-              </a>
+              </Link>
 
               {/* Kripto */}
               <button

@@ -15,7 +15,7 @@ export default function PrivacyPage() {
 
             <p className="mb-4">
                 IP adresleri yalnızca günlük 10 soru / 10 cevap limitini uygulamak amacıyla
-                hash'lenerek geçici olarak saklanır. Bu veriler kimlik tespiti için kullanılmaz ve
+                hashlenerek geçici olarak saklanır. Bu veriler kimlik tespiti için kullanılmaz ve
                 dışarı aktarılmaz.
             </p>
 

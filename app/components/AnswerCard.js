@@ -91,14 +91,14 @@ export default function AnswerCard({ answer }) {
                         <div className="mt-3 text-xs text-gray-600 dark:text-gray-300 bg-slate-100 dark:bg-[#232a37] px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700">
                             <span className="font-semibold mr-1">Kaynak:</span>
                             {/^https?:\/\//.test(source) ? (
-                                <a
+                                <Link
                                     href={source}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="text-blue-600 underline break-all"
                                 >
                                     {source}
-                                </a>
+                                </Link>
                             ) : (
                                 <span className="italic">{source}</span>
                             )}

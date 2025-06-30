@@ -81,7 +81,7 @@ export default function ResourceDetailPage() {
                     )}
                 </div>
                 <div className="mb-2">
-                    <a
+                    <Link
                         href={resource.fileUrl}
                         target="_blank"
                         rel="noopener noreferrer"
@@ -90,7 +90,7 @@ export default function ResourceDetailPage() {
                         tabIndex={isPdf ? 0 : -1}
                     >
                         <FiDownload /> PDF İndir
-                    </a>
+                    </Link>
                     {!isPdf && <span className="ml-3 text-xs text-red-500">PDF dosyası bulunamadı veya hatalı.</span>}
                 </div>
                 <div>

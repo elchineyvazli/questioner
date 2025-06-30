@@ -86,12 +86,12 @@ export default function QuestionCard({ question, onComment }) {
                         {category}
                     </span>
                     {nickname && (
-                        <a
+                        <Link
                             href={`/profile/${encodeURIComponent(nickname)}`}
                             className="text-sm font-semibold text-orange-600 hover:underline"
                         >
                             {nickname}
-                        </a>
+                        </Link>
                     )}
                     <span className="text-gray-400 dark:text-gray-500 text-xs">
                         {new Date(created_at).toLocaleDateString('tr-TR')}

@@ -22,7 +22,7 @@ export default function WeeklyChallenge() {
     return (
         <section className="rounded-2xl p-5 shadow bg-gradient-to-br from-indigo-50 via-white to-blue-50 dark:from-[#23263a] dark:via-[#1a1c29] dark:to-[#181a23] border border-indigo-100 dark:border-indigo-800 mb-7">
             <div className="flex items-center gap-2 text-lg font-black text-indigo-700 dark:text-indigo-200 mb-3">
-                <FiAward className="text-yellow-500" /> Haftanın Challenge'ı
+                <FiAward className="text-yellow-500" /> Haftanın Challenge&apos;ı
             </div>
             {loading ? (
                 <div className="animate-pulse text-gray-400 dark:text-gray-600 text-sm">Yarışma yükleniyor...</div>

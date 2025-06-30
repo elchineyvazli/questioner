@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { Dialog } from '@headlessui/react';
+import Link from 'next/link';
 
 export default function AdminResourceEditModal({ resource, onClose, onResourceUpdated }) {
     const [form, setForm] = useState(null);
@@ -108,7 +109,7 @@ export default function AdminResourceEditModal({ resource, onClose, onResourceUp
                         />
                         <div className="text-xs text-gray-400 mt-1">
                             {resource.fileUrl && (
-                                <a href={resource.fileUrl} target="_blank" rel="noopener noreferrer" className="underline">Mevcut PDF’i Gör</a>
+                                <Link href={resource.fileUrl} target="_blank" rel="noopener noreferrer" className="underline">Mevcut PDF’i Gör</Link>
                             )}
                         </div>
                     </div>

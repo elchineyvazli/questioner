@@ -64,35 +64,27 @@ export default function Sidebar({ currentCategory, onSelectCategory }) {
                 </button>
             </div>
             <div className="flex flex-col gap-2 mt-2">
-                <a
+                <Link
                     href="/resources"
                     className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-indigo-50 dark:hover:bg-[#23263a]
               text-gray-700 dark:text-gray-300 font-semibold transition"
                 >
                     <FiBookOpen /> Kaynaklar
-                </a>
-                {/* <a
-                    href="/donate"
-                    className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-pink-50 dark:hover:bg-[#25203a]
-              text-pink-600 dark:text-pink-300 font-semibold transition"
-                >
-                    <FiHeart /> Destek Ol
-                </a> */}
-                {/* İstersen, sadece zarif “Destekçiler” bölümü: */}
-                <a
+                </Link>
+                <Link
                     href="/supporters"
                     className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-yellow-50 dark:hover:bg-[#222213]
               text-yellow-600 dark:text-yellow-200 font-semibold transition"
                 >
                     🏅 Destekçiler
-                </a>
-                <a
+                </Link>
+                <Link
                     href="/comments"
                     className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-[#222436]
               text-gray-700 dark:text-gray-200 font-semibold transition"
                 >
                     <FiMessageSquare /> Yorumlar
-                </a>
+                </Link>
                 <button
                     className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-[#222436]
               text-gray-700 dark:text-gray-200 font-semibold transition"

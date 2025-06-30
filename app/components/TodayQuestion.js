@@ -61,12 +61,12 @@ export default function TodayQuestion() {
                         <span>Bugün bu soruyu tartış!</span>
                     </div>
                     <div className="flex items-center gap-2">
-                        <a
+                        <Link
                             href={`#q-${question.id}`}
                             className="px-5 py-2 rounded-xl bg-gradient-to-r from-orange-400 to-orange-600 text-white font-bold shadow hover:scale-105 hover:bg-orange-500 transition"
                         >
                             Cevapla
-                        </a>
+                        </Link>
                         <button
                             className="px-3 py-2 rounded-lg bg-orange-50 dark:bg-[#2a2128] text-orange-500 dark:text-orange-200 font-semibold shadow hover:bg-orange-100 dark:hover:bg-[#392840] transition"
                             title="Soruyu paylaş"

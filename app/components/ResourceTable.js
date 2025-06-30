@@ -1,6 +1,7 @@
 // app/components/ResourceTable.js
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { FiDownload, FiChevronDown, FiChevronUp } from 'react-icons/fi';
 
@@ -82,14 +83,14 @@ export default function ResourceTable() {
                             <td className="px-4 py-2 text-gray-800 dark:text-white">{r.name}</td>
                             <td className="px-4 py-2">
                                 {r.pdfUrl ? (
-                                    <a
+                                    <Link
                                         href={`/api/proxy-pdf?url=${encodeURIComponent(r.pdfUrl)}&filename=${encodeURIComponent(r.name || "dosya")}.pdf`}
                                         className="inline-flex items-center text-blue-600 hover:underline"
                                         title="PDF indir"
                                     >
                                         <FiDownload className="mr-1" />
                                         İndir
-                                    </a>
+                                    </Link>
                                 ) : (
                                     <span className="text-gray-300 cursor-not-allowed">
                                         <FiDownload />

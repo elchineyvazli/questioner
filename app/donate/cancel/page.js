@@ -6,9 +6,9 @@ export default function DonateCancel() {
             <p className="text-gray-700 dark:text-gray-300 mb-3">
                 Ödemeniz iptal edildi veya bir hata oluştu. Kart bilgileriniz Stripe ile güvenli şekilde korunur, herhangi bir tahsilat yapılmamıştır.
             </p>
-            <a href="/donate" className="mt-4 inline-block px-5 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white font-bold shadow">
+            <Link href="/donate" className="mt-4 inline-block px-5 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white font-bold shadow">
                 Tekrar Dene
-            </a>
+            </Link>
         </div>
     );
 }

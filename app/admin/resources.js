@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { FiDownload, FiEdit2, FiTrash2, FiLoader } from 'react-icons/fi';
 import AdminResourceEditModal from '../components/AdminResourceEditModal';
+import Link from 'next/link';
 
 export default function AdminResourcesPanel() {
     const [resources, setResources] = useState([]);
@@ -61,9 +62,9 @@ export default function AdminResourcesPanel() {
                         <div key={r.id} className="grid grid-cols-7 items-center px-4 py-2 border-t border-gray-100 dark:border-zinc-700 bg-white dark:bg-zinc-900">
                             <div className="col-span-2 font-medium">{r.name}</div>
                             <div>
-                                <a href={r.fileUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-300 hover:underline">
+                                <Link href={r.fileUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-300 hover:underline">
                                     <FiDownload />
-                                </a>
+                                </Link>
                             </div>
                             <div>
                                 <div className="h-2 bg-green-500 rounded" style={{ width: `${r.reliability}%` }}></div>

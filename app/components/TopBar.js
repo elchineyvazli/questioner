@@ -1,4 +1,5 @@
 'use client';
+import Link from "next/link";
 import { useState } from "react";
 import { FiSearch, FiSun, FiMoon, FiUser, FiHeart } from "react-icons/fi";
 
@@ -22,12 +23,12 @@ export default function Topbar() {
         <header className="fixed top-0 left-0 w-full z-30 bg-white/80 dark:bg-[#161921]/90 backdrop-blur border-b border-gray-100 dark:border-[#23263a] shadow-sm transition-all">
             <nav className="max-w-7xl mx-auto flex items-center justify-between px-4 py-2">
                 {/* LOGO & Brand */}
-                <a href="/" className="flex items-center gap-2 hover:opacity-90 transition">
+                <Link href="/" className="flex items-center gap-2 hover:opacity-90 transition">
                     <span className="rounded-full bg-gradient-to-br from-indigo-500 to-purple-400 p-2 shadow">
                         <span className="text-white font-bold text-lg">Q</span>
                     </span>
                     <span className="font-extrabold text-xl text-[#fa9e1b] tracking-tight drop-shadow">Questioner</span>
-                </a>
+                </Link>
 
                 {/* Orta: Search */}
                 <div className="hidden md:flex flex-1 justify-center px-10">
@@ -44,14 +45,14 @@ export default function Topbar() {
                 </div>
                 {/* Sağ: Kullanıcı, destek, tema */}
                 <div className="flex items-center gap-2">
-                    <a
+                    <Link
                         href="/destek"
                         className="hidden md:flex items-center gap-1 px-3 py-1.5 rounded-lg bg-gradient-to-r from-pink-400 to-orange-300 text-white font-semibold shadow hover:scale-105 transition"
                         title="Destek Ol"
                     >
                         <FiHeart className="text-lg" />
                         <span>Destek Ol</span>
-                    </a>
+                    </Link>
 
                     <button
                         className="flex items-center gap-1 px-2 py-1 rounded-lg bg-gray-100 dark:bg-[#222436] text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-[#25264a] transition"
