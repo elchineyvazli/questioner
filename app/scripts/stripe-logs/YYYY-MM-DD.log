@@ -1,0 +1,7 @@
+import { appendFile } from 'fs/promises';
+
+async function logStripeEvent(type, data) {
+    const day = new Date().toISOString().slice(0, 10);
+    const logPath = `app/scripts/stripe-logs/${day}.log`;
+    await appendFile(logPath, `[${new Date().toISOString()}] ${type}: ${JSON.stringify(data)}\n`);
+}

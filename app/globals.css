@@ -24,3 +24,59 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+.custom-scrollbar::-webkit-scrollbar { display: none; }
+
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(96, 165, 250, 0.15);
+  /* soft blue, çok saydam */
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.custom-scrollbar:hover::-webkit-scrollbar-thumb {
+  background: rgba(96, 165, 250, 0.25);
+  /* biraz koyulaşır hover'da */
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+
+@keyframes pop {
+  0% {
+    transform: scale(0.5) rotate(-15deg);
+    opacity: 0;
+  }
+
+  60% {
+    transform: scale(1.2) rotate(10deg);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+/* globals.css veya ResourceTag içine style tag olarak ekle */
+@keyframes resource-glow {
+  0% {
+    box-shadow: 0 0 0px 0 rgba(59, 130, 246, .15);
+  }
+
+  100% {
+    box-shadow: 0 0 10px 4px rgba(59, 130, 246, 0.35);
+  }
+}
+
+.resource-glow {
+  animation: resource-glow 1.8s infinite alternate;
+}
+
+
+.animate-pop {
+  animation: pop 0.5s cubic-bezier(.23, 1.04, .69, .98);
+}
