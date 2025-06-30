@@ -1,5 +1,3 @@
-// app/layout.js
-
 import './globals.css'
 import { Inter } from 'next/font/google'
 import Navbar from './components/Navbar'
@@ -17,8 +15,11 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="tr" className="scroll-smooth" suppressHydrationWarning>
-      <body className={`${inter.className} bg-white text-gray-900 dark:bg-zinc-900 dark:text-white transition-colors duration-300`}>
+    <html lang="tr" className="scroll-smooth" suppressHydrationWarning={true}>
+      <body
+        suppressHydrationWarning={true}
+        className={`${inter.className} bg-white text-gray-900 dark:bg-zinc-900 dark:text-white transition-colors duration-300`}
+      >
         <Providers>
           <OnboardingWrapper>
             <div className="min-h-screen flex flex-col">
@@ -33,7 +34,6 @@ export default function RootLayout({ children }) {
             <ThemeSwitcher />
           </OnboardingWrapper>
         </Providers>
-
       </body>
     </html>
   )

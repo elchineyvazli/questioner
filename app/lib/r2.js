@@ -86,7 +86,7 @@ export async function getFileUrl(filename, action = 'view', expiresIn = 3600) {
 export async function getPdfFromR2(key) {
     try {
         const command = new GetObjectCommand({
-            Bucket: process.env.R2_PDF_BUCKET,
+            Bucket: R2_PDF_BUCKET,
             Key: key,
         });
 
@@ -107,6 +107,33 @@ export async function getPdfFromR2(key) {
         return fileContents; // JSON ise parse et, PDF ise buffer dönebilirsin.
     } catch (error) {
         console.error("getPdfFromR2 error:", error);
+        throw error;
+    }
+}
+
+export async function getMetaFromR2(key) {
+    try {
+        const command = new GetObjectCommand({
+            Bucket: R2_META_BUCKET,
+            Key: key,
+        });
+
+        const response = await metaClient.send(command);
+
+        // response.Body stream, string veya buffer’a çevirelim:
+        const streamToString = (stream) =>
+            new Promise((resolve, reject) => {
+                const chunks = [];
+                stream.on("data", (chunk) => chunks.push(chunk));
+                stream.on("error", reject);
+                stream.on("end", () => resolve(Buffer.concat(chunks).toString("utf-8")));
+            });
+
+        const fileContents = await streamToString(response.Body);
+
+        return fileContents; // JSON ise dışarıda parse edebilirsin
+    } catch (error) {
+        console.error("getMetaFromR2 error:", error);
         throw error;
     }
 }
