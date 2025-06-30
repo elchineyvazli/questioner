@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { hashIp } from "@/app/lib/ipHash";
 import { getServerSession } from "next-auth";
-import authOptions from "@/lib/authOptions";
+import authOptions from "../../lib/authOptions";
 
 const r2 = new S3Client({
     region: process.env.R2_META_REGION,

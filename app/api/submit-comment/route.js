@@ -1,6 +1,6 @@
 // app/api/submit-comment/route.js
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
-import { hashIp } from '../../../lib/ipHash';
+import { hashIp } from '../../lib/ipHash';
 import { NextResponse } from 'next/server';
 import crypto from 'crypto';
 

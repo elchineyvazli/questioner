@@ -1,7 +1,7 @@
 // app/api/check-crypto-donations/route.js
 import { NextResponse } from "next/server";
 import { S3Client, ListObjectsV2Command, GetObjectCommand, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
-import tron from "@/lib/cryptoWallet";
+import tron from "../../lib/cryptoWallet";
 
 const r2 = new S3Client({
     region: "auto",
